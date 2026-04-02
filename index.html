@@ -4,19 +4,149 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-    <title>Home Page</title>
+    <title>RenalTech.web</title>
 </head>
 <body>
-    <header>
-        <h1>Welcome to RenalTech</h1>
-    </header>
-    <main>
-        <section>
-            <p>Your journey to better renal health starts here.</p>
-        </section>
-    </main>
-    <footer>
-        <p>© 2026 RenalTech</p>
-    </footer>
+<header>
+    <h1>Welcome to RenalTech.web</h1>
+    <img src="profile.jpg" alt="Profile Picture" width="150" style="border-radius:50%;margin:1rem 0;">
+    <p>Your simple website powered by HTML &amp; CSS!</p>
+</header>
+
+<main>
+    <section>
+        <h2>About This Site</h2>
+        <p>This is your affiliate marketing site. Share your favorite products below!</p>
+    </section>
+    
+    <section id="joke-section">
+      <h2>Get a Random Joke!</h2>
+      <button id="joke-btn">Tell me a joke</button>
+      <div id="joke-container"></div>
+    </section>
+
+    <section id="clock-section">
+      <h2>Digital Clock – World Time Zones</h2>
+      <div id="clocks">
+        <div><strong>Local:</strong> <span id="clock-local"></span></div>
+        <div><strong>New York (EST):</strong> <span id="clock-ny"></span></div>
+        <div><strong>London (GMT):</strong> <span id="clock-london"></span></div>
+        <div><strong>Tokyo (JST):</strong> <span id="clock-tokyo"></span></div>
+        <div><strong>Accra (GMT):</strong> <span id="clock-accra"></span></div>
+      </div>
+    </section>
+
+    <section id="todo-section">
+      <h2>To-Do List</h2>
+      <form id="todo-form">
+        <input type="text" id="todo-input" placeholder="Add a new task..." required>
+        <button type="submit">Add</button>
+      </form>
+      <ul id="todo-list"></ul>
+    </section>
+
+    <section id="affiliate-section">
+      <h2>Affiliate Links</h2>
+      <ul>
+        <li><a href="https://www.example.com/product1" target="_blank">Great Product 1</a></li>
+        <li><a href="https://www.example.com/product2" target="_blank">Amazing Tool 2</a></li>
+        <!-- Add your affiliate links here -->
+      </ul>
+      <p><small><em>Disclosure: Some of these links may be affiliate links. If you use them, I may earn a commission at no extra cost to you.</em></small></p>
+    </section>
+</main>
+
+<footer>
+  <p>&copy; 2026 RenalTech.web</p>
+</footer>
+
+<script>
+// Random Joke Generator
+const jokeBtn = document.getElementById('joke-btn');
+const jokeContainer = document.getElementById('joke-container');
+if(jokeBtn) {
+  jokeBtn.addEventListener('click', async () => {
+    jokeContainer.textContent = 'Loading...';
+    try {
+      const response = await fetch('https://official-joke-api.appspot.com/random_joke');
+      if (!response.ok) throw new Error('Failed to fetch');
+      const data = await response.json();
+      jokeContainer.innerHTML = `<strong>${data.setup}</strong><br>${data.punchline}`;
+    } catch {
+      jokeContainer.textContent = 'Failed to fetch a joke.';
+    }
+  });
+}
+
+// Digital Clocks
+function updateClocks() {
+  const now = new Date();
+  const zones = [
+    {el: 'clock-local'},
+    {el: 'clock-ny', opts: {timeZone: 'America/New_York'}},
+    {el: 'clock-london', opts: {timeZone: 'Europe/London'}},
+    {el: 'clock-tokyo', opts: {timeZone: 'Asia/Tokyo'}},
+    {el: 'clock-accra', opts: {timeZone: 'Africa/Accra'}},
+  ];
+  zones.forEach(z => {
+    const elem = document.getElementById(z.el);
+    if(elem) {
+      elem.textContent = now.toLocaleTimeString('en-US', Object.assign({hour12:false}, z.opts||{}));
+    }
+  });
+}
+setInterval(updateClocks, 1000);
+updateClocks();
+
+// To-Do List Application with Local Storage
+const todoForm = document.getElementById('todo-form');
+const todoInput = document.getElementById('todo-input');
+const todoList = document.getElementById('todo-list');
+let todos = JSON.parse(localStorage.getItem('todos')) || [];
+function renderTodos() {
+    if(!todoList) return;
+    todoList.innerHTML = '';
+    todos.forEach((todo, idx) => {
+      const li = document.createElement('li');
+      li.className = todo.completed ? 'completed' : '';
+      li.innerHTML = `
+        <input type="checkbox" ${todo.completed ? 'checked' : ''} data-idx="${idx}">
+        <span>${todo.text}</span>
+        <button data-idx="${idx}" class="delete-btn">Delete</button>
+      `;
+      todoList.appendChild(li);
+    });
+}
+function saveTodos() {
+  localStorage.setItem('todos', JSON.stringify(todos));
+}
+if(todoForm) {
+  todoForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const text = todoInput.value.trim();
+    if (!text) return;
+    todos.push({ text, completed: false });
+    saveTodos();
+    renderTodos();
+    todoInput.value = '';
+  });
+}
+if(todoList) {
+  todoList.addEventListener('click', function(e) {
+    const idx = e.target.getAttribute('data-idx');
+    if (e.target.matches('input[type="checkbox"]')) {
+      todos[idx].completed = !todos[idx].completed;
+      saveTodos();
+      renderTodos();
+    } else if (e.target.classList.contains('delete-btn')) {
+      todos.splice(idx, 1);
+      saveTodos();
+      renderTodos();
+    }
+  });
+}
+renderTodos();
+</script>
+
 </body>
 </html>
